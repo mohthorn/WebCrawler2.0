@@ -52,7 +52,7 @@ UINT stats(LPVOID pParam)
 
 		if (duration - past_time >= 2000)
 		{
-			printf("[%3d]\t%3d Q %3d E %3d H %3d D %3d I %3d R %3d C %3lld L %dK\n", duration / 1000,
+			printf("[%3d]\t%5d Q %5d E %7d H %6d D %6d I %5d R %5d C %5lld L %4dK\n", duration / 1000,
 				p->activeThreads, p->links.size(), p->extracted, p->seenHosts.size(), p->successDNS,
 				p->seenIPs.size(), p->robotPassed, p->crawledURLs, p->totalLink/1000);
 
@@ -151,7 +151,7 @@ UINT crawlingThread(LPVOID pParam)
 		struct sockaddr_in server;
 		if ((IP = ut.DNSParse(mysock.host, server)) == INADDR_NONE) //dns error
 		{
-			InterlockedIncrement64(&p->successDNS);
+			//InterlockedIncrement64(&p->successDNS);
 			delete(source);
 			continue;
 		}
@@ -181,7 +181,7 @@ UINT crawlingThread(LPVOID pParam)
 		mysock.method = methodHead;
 		mysock.request = robots;
 		int status_code = URLRead(source, server, mysock, nLinks, pageSize, TRUE, MAX_ROBOT);
-
+		InterlockedAdd64(&p->pageSize, pageSize);
 
 		if (status_code / 100 == 4)
 		{
@@ -196,7 +196,7 @@ UINT crawlingThread(LPVOID pParam)
 					InterlockedIncrement64(&p->scs.nxx[page_status_code / 100]);
 				else
 				{
-					printf("other status:%d", page_status_code);
+					//printf("other status:%d", page_status_code);
 					InterlockedIncrement64(&p->scs.nxx[0]);
 				}
 			}
@@ -315,17 +315,17 @@ long long urlListParse(char * filename, int nThreads)
 
 	clock_t duration = 1000.0*(pParam.end_time - pParam.start_time) / (double)(CLOCKS_PER_SEC);
 
-	printf("%d threads unfinished \n", pParam.activeThreads);
+	//printf("%d threads unfinished \n", pParam.activeThreads);
 
 	printf("Extracted %d URLs @ %d / s\n"
 		"Looked up %d DNS names @ %d / s\n"
-		"Downloaded %d robots @ %d / s\n"
+		"Attempted %d robots @ %d / s\n"
 		"Crawled %d pages @ %d / s(%.2lf MB)\n"
 		"Parsed %d links @ %d / s\n",
 		pParam.extracted, pParam.extracted * 1000 / duration,
-		pParam.successDNS, pParam.successDNS * 1000 / duration,
-		pParam.robotPassed, pParam.robotPassed * 1000 / duration,
-		pParam.crawledURLs, pParam.crawledURLs * 1000 / duration, pParam.pageSize / 1000000.0,
+		pParam.seenHosts.size(), pParam.successDNS * 1000 / duration,
+		pParam.seenIPs.size(), pParam.robotPassed * 1000 / duration,
+		pParam.robotPassed, pParam.crawledURLs * 1000 / duration, pParam.pageSize / 1000000.0,
 		pParam.totalLink, pParam.totalLink * 1000 / duration
 	);
 

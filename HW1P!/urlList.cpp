@@ -323,9 +323,9 @@ long long urlListParse(char * filename, int nThreads)
 		"Crawled %d pages @ %d / s(%.2lf MB)\n"
 		"Parsed %d links @ %d / s\n",
 		pParam.extracted, pParam.extracted * 1000 / duration,
-		pParam.seenHosts.size(), pParam.successDNS * 1000 / duration,
-		pParam.seenIPs.size(), pParam.robotPassed * 1000 / duration,
-		pParam.robotPassed, pParam.crawledURLs * 1000 / duration, pParam.pageSize / 1000000.0,
+		pParam.seenHosts.size(), pParam.seenHosts.size() * 1000 / duration,
+		pParam.seenIPs.size(), pParam.seenIPs.size() * 1000 / duration,
+		pParam.crawledURLs, pParam.crawledURLs * 1000 / duration, pParam.pageSize / 1000000.0,
 		pParam.totalLink, pParam.totalLink * 1000 / duration
 	);
 
